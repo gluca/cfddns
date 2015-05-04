@@ -33,6 +33,7 @@ if [[ $update == *"\"success\":false"* ]]; then
     echo "$update" >> $log_file
     echo "API UPDATE FAILED. DUMPING RESULTS:"
     echo "$update"
+    exit 1
 else
     echo "$ip" > $ip_file
     echo "[$(date)] - IP changed to: $ip" >> $log_file
