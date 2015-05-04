@@ -11,15 +11,22 @@ ip=$(curl -s http://ipv4.icanhazip.com)
 ip_file="ip.txt"
 log_file="cloudflare.log"
 
+# LOGGER
+log() {
+    if [ "$1" ]; then
+        echo "[$(date)] - $1" >> $log_file
+    fi
+}
+
 # SCRIPT START
-echo "[$(date)] - Check Initiated" >> $log_file
+log "Check Initiated"
 
 if [ -f $ip_file ]; then
-        old_ip=$(cat $ip_file)
-        if [ $ip == $old_ip ]; then
-                echo "IP has not changed."
-                exit 0
-        fi
+    old_ip=$(cat $ip_file)
+    if [ $ip == $old_ip ]; then
+        echo "IP has not changed."
+        exit 0
+    fi
 fi
 
 zone_identifier=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$zone_name" -H "X-Auth-Email: $auth_email" -H "X-Auth-Key: $auth_key" -H "Content-Type: application/json" | grep -Po '(?<="id":")[^"]*' | head -1 )
@@ -29,13 +36,13 @@ record_identifier=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$
 update=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$zone_identifier/dns_records/$record_identifier" -H "X-Auth-Email: $auth_email" -H "X-Auth-Key: $auth_key" -H "Content-Type: application/json" --data "{\"id\":\"$zone_identifier\",\"type\":\"A\",\"name\":\"$record_name\",\"content\":\"$ip\"}")
 
 if [[ $update == *"\"success\":false"* ]]; then
-    echo "[$(date)] - API UPDATE FAILED. DUMPING RESULTS:" >> $log_file
-    echo "$update" >> $log_file
+    log "API UPDATE FAILED. DUMPING RESULTS:"
+    log "$update"
     echo "API UPDATE FAILED. DUMPING RESULTS:"
     echo "$update"
-    exit 1
+    exit 1 
 else
     echo "$ip" > $ip_file
-    echo "[$(date)] - IP changed to: $ip" >> $log_file
+    log "IP changed to: $ip"
     echo "IP changed to: $ip"
 fi
