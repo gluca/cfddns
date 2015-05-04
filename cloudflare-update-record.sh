@@ -6,10 +6,12 @@ auth_key="c2547eb745079dac9320b638f5e225cf483cc5cfdda41" # found in cloudflare a
 zone_name="example.com"
 record_name="www.example.com"
 
+# MAYBE CHANGE THESE
 ip=$(curl -s http://ipv4.icanhazip.com)
 ip_file="ip.txt"
 log_file="cloudflare.log"
 
+# SCRIPT START
 echo "[$(date)] - Check Initiated" >> $log_file
 
 if [ -f $ip_file ]; then
