@@ -14,7 +14,7 @@ log_file="cloudflare.log"
 # LOGGER
 log() {
     if [ "$1" ]; then
-        echo "[$(date)] - $1" >> $log_file
+        echo -e "[$(date)] - $1" >> $log_file
     fi
 }
 
@@ -36,8 +36,7 @@ record_identifier=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$
 update=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$zone_identifier/dns_records/$record_identifier" -H "X-Auth-Email: $auth_email" -H "X-Auth-Key: $auth_key" -H "Content-Type: application/json" --data "{\"id\":\"$zone_identifier\",\"type\":\"A\",\"name\":\"$record_name\",\"content\":\"$ip\"}")
 
 if [[ $update == *"\"success\":false"* ]]; then
-    log "API UPDATE FAILED. DUMPING RESULTS:"
-    log "$update"
+    log "API UPDATE FAILED. DUMPING RESULTS:\n$update"
     echo "API UPDATE FAILED. DUMPING RESULTS:"
     echo "$update"
     exit 1 
