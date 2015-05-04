@@ -1,7 +1,7 @@
 #!/bin/bash
 
-ip_file="ip.txt"
 ip=$(curl -s http://ipv4.icanhazip.com)
+ip_file="ip.txt"
 log_file="cloudflare.log"
 
 zone_identifier="ZONE IDENTIFIER"
