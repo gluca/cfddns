@@ -20,20 +20,21 @@ if [ -f $ip_file ]; then
                 echo "IP has not changed."
                 exit 0
         fi
-else
-        echo "$ip" > $ip_file
 fi
 
 zone_identifier=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$zone_name" -H "X-Auth-Email: $auth_email" -H "X-Auth-Key: $auth_key" -H "Content-Type: application/json" | grep -Po '(?<="id":")[^"]*' | head -1 )
 
 record_identifier=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$zone_identifier/dns_records?name=$record_name" -H "X-Auth-Email: $auth_email" -H "X-Auth-Key: $auth_key" -H "Content-Type: application/json"  | grep -Po '(?<="id":")[^"]*')
 
-curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$zone_identifier/dns_records/$record_identifier" -H "X-Auth-Email: $auth_email" -H "X-Auth-Key: $auth_key" -H "Content-Type: application/json" --data "{\"id\":\"$zone_identifier\",\"type\":\"A\",\"name\":\"$record_name\",\"content\":\"$ip\"}" -o /dev/null
+update=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$zone_identifier/dns_records/$record_identifier" -H "X-Auth-Email: $auth_email" -H "X-Auth-Key: $auth_key" -H "Content-Type: application/json" --data "{\"id\":\"$zone_identifier\",\"type\":\"A\",\"name\":\"$record_name\",\"content\":\"$ip\"}")
 
-if [ $? -eq 0 ]; then
+if [[ $update == *"\"success\":false"* ]]; then
+    echo "[$(date)] - API UPDATE FAILED. DUMPING RESULTS:" >> $log_file
+    echo "$update" >> $log_file
+    echo "API UPDATE FAILED. DUMPING RESULTS:"
+    echo "$update"
+else
+    echo "$ip" > $ip_file
     echo "[$(date)] - IP changed to: $ip" >> $log_file
     echo "IP changed to: $ip"
-else
-    echo "[$(date)] - API UPDATE FAILED" >> $log_file
-    echo "API UPDATE FAILED."
 fi
