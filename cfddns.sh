@@ -8,7 +8,7 @@ record_name=$1
 
 # MAYBE CHANGE THESE
 ip=$(curl -s http://ipv4.icanhazip.com)
-ip_file="my.ip"
+ip_file="$1.ip"
 id_zone="zone_$2.id"
 id_record="record_$1.id"
 log_file="cfddns.log"
